@@ -130,6 +130,7 @@ public class SwingUI extends JFrame {
         searchResultTable = new JTable(tableData);
         searchResultTable.setRowHeight(30);
         searchResultTable.setFont(new Font("Sansserif", Font.BOLD, 16));
+        
         searchResultTable.getColumnModel().getColumn(1).setCellRenderer(new CheckBoxRenderer());
         searchResultTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JCheckBox()));
         searchResultTable.addMouseListener(new MouseAdapter() {
