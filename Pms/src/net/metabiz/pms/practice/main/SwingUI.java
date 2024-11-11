@@ -16,7 +16,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Action;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,6 +35,8 @@ import net.metabiz.pms.practice.crud.AddItemDialog;
 import net.metabiz.pms.practice.crud.DeleteData;
 import net.metabiz.pms.practice.crud.DetailUI;
 import net.metabiz.pms.practice.crud.TableData;
+import net.metabiz.pms.practice.excel.ExcelStart;
+import net.metabiz.pms.practice.uirenderer.CheckBoxRenderer;
 
 public class SwingUI extends JFrame {
     private JPanel pnMain;
@@ -40,7 +44,6 @@ public class SwingUI extends JFrame {
     private JPanel pnMainNorthNorth;
     private JPanel pnMainNorthCenter;
     private JTextField searchTextField;
-    private JButton searchBtn;
 
     private JPanel pnMainCenter;
     private JPanel pnMainCenterNorth;
@@ -50,8 +53,10 @@ public class SwingUI extends JFrame {
     private JPanel pnMainSouthSouth;
     private JPanel pnMainSouthSouthSouth;
     
+    private JButton searchBtn;
     private JButton addBtn;
     private JButton delBtn;
+    private JButton exportBtn;
 
     private JTable searchResultTable;
     private DefaultTableModel tableModel;
@@ -63,6 +68,7 @@ public class SwingUI extends JFrame {
     private DetailUI detailUI;
     
     private int row;
+    private ExcelStart export;
 
     public SwingUI() {
         init();
@@ -124,6 +130,8 @@ public class SwingUI extends JFrame {
         searchResultTable = new JTable(tableData);
         searchResultTable.setRowHeight(30);
         searchResultTable.setFont(new Font("Sansserif", Font.BOLD, 16));
+        searchResultTable.getColumnModel().getColumn(1).setCellRenderer(new CheckBoxRenderer());
+        searchResultTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JCheckBox()));
         searchResultTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                row = searchResultTable.getSelectedRow();
@@ -164,9 +172,9 @@ public class SwingUI extends JFrame {
                 if(0<=lastIdx) {
                     searchResultTable.scrollRectToVisible(searchResultTable.getCellRect(lastIdx, 0, true));
                 }
-                TableRowSorter<AbstractTableModel> trs = new TableRowSorter<>(tableData);
-                searchResultTable.setRowSorter(trs);
-                trs.setRowFilter(RowFilter.regexFilter(searchTextField.getText())); // 기존 필터 유지
+//                TableRowSorter<AbstractTableModel> trs = new TableRowSorter<>(tableData);
+//                searchResultTable.setRowSorter(trs);
+//                trs.setRowFilter(RowFilter.regexFilter(searchTextField.getText())); // 기존 필터 유지
             }
         });
         delBtn = new JButton("삭 제");
@@ -177,8 +185,22 @@ public class SwingUI extends JFrame {
                 delData = new DeleteData(row, tableData);
             }
         });
+        exportBtn = new JButton("EXPORT");
+        exportBtn.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                   try {
+                    export = new ExcelStart(searchResultTable);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+                    
+            }
+        });
         pnMainSouthSouth.add(addBtn);
         pnMainSouthSouth.add(delBtn);
+        pnMainSouthSouth.add(exportBtn);
 
         pnMain.add(pnMainNorth, BorderLayout.NORTH);
         pnMain.add(pnMainCenter, BorderLayout.CENTER);
@@ -188,6 +210,8 @@ public class SwingUI extends JFrame {
         this.setVisible(true);
 
     }
+    
+    
 
     public static void main(String[] args) {
         new SwingUI();

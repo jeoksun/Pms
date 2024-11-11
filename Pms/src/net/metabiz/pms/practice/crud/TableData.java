@@ -64,22 +64,12 @@ public class TableData extends AbstractTableModel {
                     TableBeansBuilder tb = new TableBeansBuilder(transaction);
                     transaction = tb.itemCode(data[0])
                             .itemName(data[1])
-                            .itemGTIN(Long.parseLong(data[2]))
+                            .itemGTIN(Long.parseLong(data[2].trim()))
                             .itemComment(data[3]).transcation();
                     list.add(transaction);
                 }
             }
 
-            if (list.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "파일이 존재하나 데이터가 없습니다! 새로 생성합니다.");
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                    writer.write("ItemCode,ItemName,GTIN,ItemComment\n");
-                }
-            }
-            else {
-                System.out.println("파일에서 읽어온 데이터:");
-                list.forEach(System.out::println);
-            }
 
             sc.close();
         } catch (Exception e) {
@@ -134,5 +124,20 @@ public class TableData extends AbstractTableModel {
             e.printStackTrace();
         }
     }
+    
+    
+    
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        if(columnIndex == 1) {
+            return Boolean.class;
+        }
+        return super.getColumnClass(columnIndex);
+    }
+    
+    
+    
+    
+    
 
 }
