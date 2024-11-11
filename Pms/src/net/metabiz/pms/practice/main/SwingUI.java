@@ -47,9 +47,9 @@ public class SwingUI extends JFrame {
     private JPanel pnMainCenterCenter;
 
     private JPanel pnMainSouth;
-
     private JPanel pnMainSouthSouth;
     private JPanel pnMainSouthSouthSouth;
+    
     private JButton addBtn;
     private JButton delBtn;
 
@@ -95,7 +95,7 @@ public class SwingUI extends JFrame {
                 String searchData = searchTextField.getText();
                 TableRowSorter<AbstractTableModel> trs = new TableRowSorter<>(tableData);
                 searchResultTable.setRowSorter(trs);
-                trs.setRowFilter(RowFilter.regexFilter(searchData));
+                trs.setRowFilter(RowFilter.regexFilter(searchData));                //조회필드에 입력한 값만 나오도록 출력
 
             }
         });
@@ -142,9 +142,8 @@ public class SwingUI extends JFrame {
 
         JTableHeader header = searchResultTable.getTableHeader();
         header.setBackground(new Color(92, 179, 255));
-        JScrollPane scrTable = new JScrollPane();
-        scrTable.setViewportView(searchResultTable);
-        pnMainCenter.add(scrTable);
+        JScrollPane scrTable = new JScrollPane(searchResultTable);
+        pnMainCenter.add(scrTable,BorderLayout.CENTER);
 
         // 추가, 삭제 Btn 위치 조정
         pnMainSouth = new JPanel(new BorderLayout());
@@ -161,6 +160,13 @@ public class SwingUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 addDialog = new AddItemDialog(tableData);
                 tableData.fireTableDataChanged();
+                int lastIdx = searchResultTable.getRowCount()-1;
+                if(0<=lastIdx) {
+                    searchResultTable.scrollRectToVisible(searchResultTable.getCellRect(lastIdx, 0, true));
+                }
+                TableRowSorter<AbstractTableModel> trs = new TableRowSorter<>(tableData);
+                searchResultTable.setRowSorter(trs);
+                trs.setRowFilter(RowFilter.regexFilter(searchTextField.getText())); // 기존 필터 유지
             }
         });
         delBtn = new JButton("삭 제");
