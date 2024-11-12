@@ -26,6 +26,10 @@ public class TableBeansBuilder {
         transcation.setItemComment(comment);
         return this;
     }
+    public TableBeansBuilder checkStatus(boolean checkStatus) {
+        transcation.setCheckStatus(checkStatus);;
+        return this;
+    }
     
     public TableBeans transcation() {
         return transcation;

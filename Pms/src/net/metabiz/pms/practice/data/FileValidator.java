@@ -30,7 +30,6 @@ public class FileValidator {
                 return false;
             }
         }
-        JOptionPane.showMessageDialog(null, "디렉토리 이미 존재");
         return true;
         
         

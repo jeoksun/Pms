@@ -12,11 +12,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class DeleteData extends JDialog {
-    private int rowIdx;
+//    private int rowIdx;
     private TableData tableData;
 
-    public DeleteData(int rowIdx, TableData tableData) {
-        this.rowIdx = rowIdx;
+    public DeleteData( TableData tableData) {
+//        this.rowIdx = rowIdx;
         this.tableData = tableData;
         delInit();
     }
@@ -63,9 +63,16 @@ public class DeleteData extends JDialog {
     }
 
     private void delData() {
-        System.out.println(rowIdx);
-        tableData.beanslist().remove(rowIdx);
+        for (int i = tableData.beanslist().size() - 1; i >= 0; i--) {   //°øÀ¯ List
+            TableBeans item = tableData.beanslist().get(i);
+            if (item.isCheckStatus()) {
+                tableData.beanslist().remove(i);
+            }
+        }
+
+        
         tableData.fireTableDataChanged();
+        tableData.fileUpdate(); 
         
         dispose();
     }

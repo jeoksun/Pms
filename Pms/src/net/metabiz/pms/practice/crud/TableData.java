@@ -13,7 +13,9 @@ import javax.swing.table.AbstractTableModel;
 
 public class TableData extends AbstractTableModel {
     private List<TableBeans> list;
-    private String[] headers = { "ItemCode", "ItemName", "GTIN", "ItemComment" };
+    private String[] headers = {"","자재코드", "자재명", "GTIN", "비고" };
+    private int[] columns = { 30, 80, 100, 130, 200};
+    
 
     public TableData() { // 객체 완성시 파일 불러오기
         updateList();
@@ -32,26 +34,27 @@ public class TableData extends AbstractTableModel {
 
     public void updateList() {
         list = new ArrayList<TableBeans>(); // 리스트 초기화
-        try {
-            File file = new File("D:\\DEV\\workspace\\Pms\\file\\csv.csv");
+        File file = new File("D:\\DEV\\workspace\\Pms\\file\\csv.csv");
 
-            if (!file.exists() || file.length() == 0) {
-                JOptionPane.showMessageDialog(null, "파일이 존재하지 않거나 비어 있습니다! 새로 생성합니다.");
-
-                if (!file.exists()) {
+        if (!file.exists() || file.length() == 0) {
+            JOptionPane.showMessageDialog(null, "파일이 존재하지 않거나 비어 있습니다! 새로 생성합니다.");
+            if (!file.exists()) {
+                try {
                     file.createNewFile();
-
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                         writer.write("ItemCode,ItemName,GTIN,ItemComment\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-               
-                return;
             }
+            return;
+        }
 
-            Scanner sc = new Scanner(file);
+        try (Scanner sc = new Scanner(file)) {  // try-with-resources로 Scanner 자동으로 닫기
             boolean firstLine = true;
-
             while (sc.hasNextLine()) {
                 String[] data = sc.nextLine().split(",");
                 if (firstLine) {
@@ -59,7 +62,7 @@ public class TableData extends AbstractTableModel {
                     continue;
                 }
 
-                if (data.length == 4) {                 //인덱스 X 길이O
+                if (data.length == 4) {  // 인덱스 X 길이 O
                     TableBeans transaction = new TableBeans();
                     TableBeansBuilder tb = new TableBeansBuilder(transaction);
                     transaction = tb.itemCode(data[0])
@@ -70,34 +73,43 @@ public class TableData extends AbstractTableModel {
                 }
             }
 
-
-            sc.close();
-        } catch (Exception e) {
+            // 추가: 데이터 로드 상태 확인
+            System.out.println("데이터 로딩 완료, 총 " + list.size() + "개의 항목이 로드되었습니다.");
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public int getRowCount() {
         return list.size(); // 리스트의 Idx 만큼
     }
 
+    /**
+     * 컬럼 개수 5개로 만들고 Index 0번째에 체크박스 
+     */
     @Override
-    public int getColumnCount() { // 컬럼 갯수
-        return 4;
+    public int getColumnCount() {
+        return 5;
     }
-
+    /**
+     * 컬럼 개수 5개 0번째 Index는 체크박스 
+     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        TableBeans bean = list.get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return list.get(rowIndex).getItemCode();
+                return bean.isCheckStatus();
             case 1:
-                return list.get(rowIndex).getItemName();
+                return bean.getItemCode();
             case 2:
-                return list.get(rowIndex).getGtin();
+                return bean.getItemName();
             case 3:
-                return list.get(rowIndex).getItemComment();
+                return bean.getGtin();
+            case 4:
+                return bean.getItemComment();
             default:
                 return null;
 
@@ -105,35 +117,28 @@ public class TableData extends AbstractTableModel {
     }
     
     public void fileUpdate() {
-        try {
-            File file = new File("D:\\DEV\\workspace\\Pms\\file\\csv.csv");
+        File file = new File("D:\\DEV\\workspace\\Pms\\file\\csv.csv");
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write("ItemCode,ItemName,GTIN,ItemComment\n");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {  // try-with-resources로 BufferedWriter 자동으로 닫기
+            writer.write("ItemCode,ItemName,GTIN,ItemComment\n");
 
-                for (TableBeans tb : list) {
-                    writer.write(tb.getItemCode() + ","
-                            + tb.getItemName() + ","
-                            + tb.getGtin() + ","
-                            + tb.getItemComment() + "\n");
-                }
-                writer.close();
+            for (TableBeans tb : list) {
+                writer.write(tb.getItemCode() + ","
+                        + tb.getItemName() + ","
+                        + tb.getGtin() + ","
+                        + tb.getItemComment() + "\n");
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
     
-    
     @Override
-    public Class<?> getColumnClass(int columnIndex) {
-        if(columnIndex == 1) {
-            return Boolean.class;
-        }
-        return super.getColumnClass(columnIndex);
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return columnIndex == 0;  // 첫 번째 열(체크박스)만 편집 가능
     }
+    
     
     
     
