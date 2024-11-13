@@ -1,4 +1,4 @@
-package net.metabiz.pms.practice.crud;
+package net.metabiz.pms.practice.data;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package net.metabiz.pms.practice.main;
+package net.metabiz.pms.practice.uirenderer;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,95 +6,121 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
-import net.metabiz.pms.practice.crud.AddItemDialog;
-import net.metabiz.pms.practice.crud.DeleteData;
-import net.metabiz.pms.practice.crud.DetailUI;
-import net.metabiz.pms.practice.crud.TableData;
-import net.metabiz.pms.practice.excel.ExcelStart;
-import net.metabiz.pms.practice.uirenderer.CheckBoxEditor;
-import net.metabiz.pms.practice.uirenderer.CheckBoxRenderer;
+import net.metabiz.pms.practice.data.TableData;
+import net.metabiz.pms.practice.handler.ExcelExportHandler;
+import net.metabiz.pms.practice.uirenderer.checkbox.CheckBoxEditor;
+import net.metabiz.pms.practice.uirenderer.checkbox.CheckBoxRenderer;
+import net.metabiz.pms.practice.uirenderer.dailog.AddDialog;
+import net.metabiz.pms.practice.uirenderer.dailog.DeleteDiaglog;
+import net.metabiz.pms.practice.uirenderer.dailog.DetailWithUpdateDialog;
+import net.metabiz.pms.practice.uirenderer.style.SwingStyle;
 
-public class SwingUI extends JFrame {
-    private JPanel pnMain;
-    private JPanel pnMainNorth;
-    private JPanel pnMainNorthNorth;
-    private JPanel pnMainNorthCenter;
-    private JTextField searchTextField;
+public class UIrenderer extends JFrame {
 
-    private JPanel pnMainCenter;
-    private JPanel pnMainCenterNorth;
-    private JPanel pnMainCenterCenter;
+    private JPanel pnMain; // 메인 패널
+
+    private JPanel pnMainNorth; // 메인 위쪽 (하나로 묶어놓기 전용)
+    private JPanel pnMainNorthNorth;// 메인 위쪽에 위쪽 타이틀 라벨 들어갈곳
+    private JPanel pnMainNorthCenter;// 메인 위쪽에 센터 조회 라벨,조회 텍스트 필드 들어갈곳
+
+    /**
+     * textfield.getText()를 전역으로 쓰기위해서
+     */
+    private JTextField itemCodeFilter; // 자재코드 텍스트필드
+    private JTextField itemNameFilter; // 자재명 텍스트필드
+    private JTextField gtinFilter; // GTIN 텍스트필드
+    private JTextField commentFilter; // 비고 텍스트필드
+
+    // private JTextField searchTextField; 원래 조회 컬럼
+
+    /**
+     * Table 영역
+     */
+    private JPanel pnMainCenter; // 메인 가운데(하나로 묶어놓기 전용)
+    private JPanel pnMainCenterNorth; // 메인 위쪽 (라벨)
+    private TableData tableData; // 테이블 데이터 가져오는 객체
+    private int row; // Table row 추적용 전역 변수
+
+    /**
+     * Button 영역
+     */
 
     private JPanel pnMainSouth;
     private JPanel pnMainSouthSouth;
-    private JPanel pnMainSouthSouthSouth;
-
-    private JButton searchBtn;
     private JButton addBtn;
     private JButton delBtn;
     private JButton exportBtn;
 
     private JTable searchResultTable;
-    private DefaultTableModel tableModel;
 
-    private AddItemDialog addDialog;
-    private DeleteData delData;
-    private TableData tableData;
+    private AddDialog addDialog; // 자재 추가 시 호출 객체
+    private DeleteDiaglog delData; // 자재 삭제 시 호출 객체
 
-    private DetailUI detailUI;
+    private DetailWithUpdateDialog detailUI; // Row 클릭 시 상세 객체 (수정까지)
 
-    private int row;
-    private ExcelStart export;
-    private CheckBoxRenderer checkBoxRenderer;
-    private CheckBoxEditor checkBoxEditor;
+    private ExcelExportHandler export; // Export btn 클릭시 호출(엑셀파일 export) 객체
 
-    private JTextField itemCodeFilter;
-    private JTextField itemNameFilter;
-    private JTextField gtinFilter;
-    private JTextField commentFilter;
+    private CheckBoxRenderer checkBoxRenderer; // CheckBox 랜더링
+    private CheckBoxEditor checkBoxEditor; // CheckBox 편집
 
-    public SwingUI() {
+    public UIrenderer() {
         init();
     }
 
     public void init() {
+        /*****************
+         * this = Jframe *
+         *****************/
+
         this.setSize(1000, 800);
         this.setLocationRelativeTo(null);
         this.setTitle("PMS 자재 관리 시스템");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         pnMain = new JPanel(new BorderLayout(10, 10)); // 여백을 추가하여 컴포넌트 간 간격을 만들기
 
-        // 상단 - 필터 영역
+        /**
+         * 상단 필터 영역
+         * 상단 Layout 지정
+         */
         pnMainNorth = new JPanel(new BorderLayout(10, 10));
         pnMainNorthNorth = new JPanel(new BorderLayout());
         pnMainNorthCenter = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
+        /**
+         * 상단 메인 타이틀 Label
+         * pnMainNorthNorth 에는 메인 타이틀 **Label**만 들어감
+         */
         JLabel mainTitleLabel = new JLabel("자재 관리 시스템");
         mainTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         mainTitleLabel.setForeground(new Color(0, 51, 102)); // 타이틀 색상
         pnMainNorthNorth.add(mainTitleLabel, BorderLayout.NORTH);
 
+        /**
+         * pnMainNorthCenter
+         * 조회 라벨 및 TextField, 이벤트
+         */
         pnMainNorthCenter.add(new JLabel("자재코드:"));
         itemCodeFilter = new JTextField(15);
-        styleTextField(itemCodeFilter);
+        SwingStyle.textFieldStyleChanger(itemCodeFilter);
         itemCodeFilter.addKeyListener(createKeyListener());
         pnMainNorthCenter.add(itemCodeFilter);
 
         pnMainNorthCenter.add(new JLabel("자재명:"));
         itemNameFilter = new JTextField(15);
-        styleTextField(itemNameFilter);
+        SwingStyle.textFieldStyleChanger(itemNameFilter);
         itemNameFilter.addKeyListener(createKeyListener());
         pnMainNorthCenter.add(itemNameFilter);
 
         pnMainNorthCenter.add(new JLabel("GTIN:"));
         gtinFilter = new JTextField(15);
-        styleTextField(gtinFilter);
+        SwingStyle.textFieldStyleChanger(gtinFilter);
         gtinFilter.addKeyListener(createKeyListener());
         pnMainNorthCenter.add(gtinFilter);
 
         pnMainNorthCenter.add(new JLabel("비고:"));
         commentFilter = new JTextField(15);
-        styleTextField(commentFilter);
+        SwingStyle.textFieldStyleChanger(commentFilter);
         commentFilter.addKeyListener(createKeyListener());
         pnMainNorthCenter.add(commentFilter);
 
@@ -103,107 +129,160 @@ public class SwingUI extends JFrame {
 
         // 중앙 - 테이블 영역
         pnMainCenter = new JPanel(new BorderLayout(10, 10));
+
         pnMainCenterNorth = new JPanel(new BorderLayout());
         JLabel searchResultLabel = new JLabel("결과 조회 테이블");
         searchResultLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         pnMainCenterNorth.add(searchResultLabel, BorderLayout.NORTH);
+
         pnMainCenter.add(pnMainCenterNorth, BorderLayout.NORTH);
 
+        /**
+         * 테이블 데이터 초기화 후 테이블 생성
+         */
         tableData = new TableData();
         searchResultTable = new JTable(tableData);
-        
+
         // 테이블에 각 열 크기 및 체크박스 설정 유지
         searchResultTable.setRowHeight(30); // 각 행 높이 조정
         searchResultTable.setFont(new Font("SansSerif", Font.BOLD, 16));
-        
-        searchResultTable.getColumnModel().getColumn(0).setPreferredWidth(40); // 체크박스 열 크기
-        for (int i = 1; i < searchResultTable.getColumnCount(); i++) {
-            searchResultTable.getColumnModel().getColumn(i).setPreferredWidth(300); // 다른 열 크기
+        searchResultTable.getColumnModel().getColumn(0).setPreferredWidth(40); // 체크박스 width 크기
+
+        for (int i = 1; i < searchResultTable.getColumnCount(); i++) {// 다른컬럼 width 크기
+            searchResultTable.getColumnModel().getColumn(i).setPreferredWidth(300);
         }
 
-        // 체크박스 렌더러와 에디터 설정을 그대로 유지
+        /**
+         * CheckBox관련 렌터러 에디터 초기화
+         * 0번째 컬럼 {""} 에게 체크박스 부여
+         */
         checkBoxRenderer = new CheckBoxRenderer();
         checkBoxEditor = new CheckBoxEditor(tableData);
         searchResultTable.getColumnModel().getColumn(0).setCellRenderer(checkBoxRenderer);
         searchResultTable.getColumnModel().getColumn(0).setCellEditor(checkBoxEditor);
 
-        // 클릭 이벤트 처리
+        /**
+         * 체크박스 외 셀 클릭시 이벤트
+         */
         searchResultTable.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                // 클릭한 셀의 컬럼이 0(체크박스 열)일 경우 이벤트 처리하지 않음
-                if (searchResultTable.getSelectedColumn() == 0) {
-                    return; // 체크박스를 클릭한 경우 이벤트 무시
-                }
-
-                row = searchResultTable.getSelectedRow();
-                if (row != -1) {
-                    String itemCode = tableData.getValueAt(row, 1).toString();
-                    String itemName = tableData.getValueAt(row, 2).toString();
-                    String itemGTIN = tableData.getValueAt(row, 3).toString();
-                    String itemComment = tableData.getValueAt(row, 4).toString();
-
-                    // 상세 정보를 보여주는 UI 호출
-                    detailUI = new DetailUI(itemCode, itemName, itemGTIN, itemComment, row, tableData);
-                }
+                cellClickEvent();
             }
         });
 
+        /**
+         * 테이블 스크롤팬으로 감싸기
+         */
         JScrollPane scrTable = new JScrollPane(searchResultTable);
         pnMainCenter.add(scrTable, BorderLayout.CENTER);
 
-        // 하단 - 버튼 영역
+        /**
+         * 하단 버튼 영역
+         */
         pnMainSouth = new JPanel(new BorderLayout(10, 10));
         pnMainSouthSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
+        /**
+         * 추가 이벤트
+         */
         addBtn = new JButton("추 가");
-        styleButton(addBtn);
+        SwingStyle.btnStyleChanger(addBtn);
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addDialog = new AddItemDialog(tableData);
-                tableData.fireTableDataChanged();
-                int lastIdx = searchResultTable.getRowCount() - 1;
-                if (0 <= lastIdx) {
-                    searchResultTable.scrollRectToVisible(searchResultTable.getCellRect(lastIdx, 0, true));
-                }
+                rowAddEvent();
             }
         });
 
+        /**
+         * 삭제 이벤트
+         */
         delBtn = new JButton("삭 제");
-        styleButton(delBtn);
+        SwingStyle.btnStyleChanger(delBtn);
         delBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                delData = new DeleteData(tableData);
+                delData = new DeleteDiaglog(tableData);
             }
         });
 
+        /**
+         * 엑셀 export 이벤트
+         */
         exportBtn = new JButton("EXPORT");
-        styleButton(exportBtn);
+        SwingStyle.btnStyleChanger(exportBtn);
         exportBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    export = new ExcelStart(searchResultTable);
+                    export = new ExcelExportHandler(searchResultTable);
                 } catch (Exception e1) {
-                    e1.printStackTrace();   
+                    e1.printStackTrace();
                 }
             }
         });
 
+        /**
+         * 버튼 추가
+         */
         pnMainSouthSouth.add(addBtn);
         pnMainSouthSouth.add(delBtn);
         pnMainSouthSouth.add(exportBtn);
 
-        pnMainSouth.add(pnMainSouthSouth, BorderLayout.CENTER);
+        pnMainSouth.add(pnMainSouthSouth, BorderLayout.CENTER); // 메인인 하단 메인인 south에 버튼넣기
+        /**
+         * 메인에 노스, 센터, 사우스 담기
+         */
         pnMain.add(pnMainNorth, BorderLayout.NORTH);
         pnMain.add(pnMainCenter, BorderLayout.CENTER);
         pnMain.add(pnMainSouth, BorderLayout.SOUTH);
 
+        /**
+         * 위에서 노스, 센터, 사우스가 담긴 main을 frame에 추가 시키면서 완성
+         */
         this.add(pnMain);
         this.setVisible(true);
     }
 
+    /**
+     * CheckBox 제외 다른 컬럼 셀 클릭시 발생 이벤트
+     */
+    private void cellClickEvent() {
+
+        if (searchResultTable.getSelectedColumn() == 0) { // 클릭한 셀의 컬럼이 0(체크박스 열)일 경우 이벤트 처리하지 않음
+            return; // 체크박스를 클릭한 경우 바로 리턴시켜서 아무일도없게
+        }
+
+        row = searchResultTable.getSelectedRow(); // default가 -1, checkbox가 0
+        if (row != -1) {
+            /**
+             * 각각의 row에 값을 가져와서 저장 후 detail객체에 뿌림
+             */
+            String itemCode = tableData.getValueAt(row, 1).toString();
+            String itemName = tableData.getValueAt(row, 2).toString();
+            String itemGTIN = tableData.getValueAt(row, 3).toString();
+            String itemComment = tableData.getValueAt(row, 4).toString();
+
+            detailUI = new DetailWithUpdateDialog(itemCode, itemName, itemGTIN, itemComment, row, tableData);
+        }
+    }
+
+    /**
+     * 로우 추가 이벤트
+     */
+    private void rowAddEvent() {
+        addDialog = new AddDialog(tableData);
+        tableData.renewal();
+        int lastIdx = searchResultTable.getRowCount() - 1;
+        if (0 <= lastIdx) {
+            searchResultTable.scrollRectToVisible(searchResultTable.getCellRect(lastIdx, 0, true));
+        }
+
+    }
+
+    /**
+     * 텍스트필드에 입력할때마다 이벤트 발생
+     */
     private KeyListener createKeyListener() {
         return new KeyAdapter() {
             @Override
@@ -213,21 +292,30 @@ public class SwingUI extends JFrame {
         };
     }
 
+    /**
+     * 키입력 이벤트 발생의 주체
+     */
     private void applyFilter() {
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableData);
         searchResultTable.setRowSorter(sorter);
 
-        // 순서 상관없이 텍스트 필드에 입력하는 값 을 += 해준다는 느낌.
+        // 순서 상관없이 텍스트 필드에 입력하는 값 을 List에 += 해준다는 느낌.
         List<RowFilter<TableModel, Object>> filters = new ArrayList<>();
         filters.add(RowFilter.regexFilter(getItemCodeFilter(), 1));
         filters.add(RowFilter.regexFilter(getItemNameFilter(), 2));
         filters.add(RowFilter.regexFilter(getGtinFilter(), 3));
         filters.add(RowFilter.regexFilter(getCommentFilter(), 4));
 
+        /**
+         * 텍스트필드에 입력한값이 있다면
+         */
         RowFilter<TableModel, Object> rowFilter = RowFilter.andFilter(filters);
         sorter.setRowFilter(rowFilter);
     }
 
+    /**
+     * 트림 처서 공백 없애서 리턴값을 조회 텍스트 필드에 적용
+     */
     private String getItemCodeFilter() {
         return itemCodeFilter.getText().trim();
     }
@@ -244,33 +332,14 @@ public class SwingUI extends JFrame {
         return commentFilter.getText().trim();
     }
 
+    /**
+     * 텍스트필드 스타일 설정
+     */
     private void styleTextField(JTextField textField) {
         textField.setBackground(new Color(240, 240, 240));
         textField.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
         textField.setFont(new Font("SansSerif", Font.PLAIN, 14));
     }
 
-    private void styleButton(JButton button) {
-        button.setBackground(new Color(92, 179, 255));
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("SansSerif", Font.BOLD, 14));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
 
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(new Color(72, 159, 235));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(new Color(92, 179, 255));
-            }
-        });
-    }
-
-    public static void main(String[] args) {
-        new SwingUI();
-    }
 }

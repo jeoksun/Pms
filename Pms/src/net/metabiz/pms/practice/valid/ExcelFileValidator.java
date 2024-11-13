@@ -1,13 +1,17 @@
-package net.metabiz.pms.practice.data;
+package net.metabiz.pms.practice.valid;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import net.metabiz.pms.practice.data.PropertiesData;
 
-public class FileValidator {
-    
+/**
+ * Properties file을 읽고 파일 존재
+ * 여부 확인 객체
+ */
+public class ExcelFileValidator {
     
     /**
        디렉토리 존재 여부 확인 후 없으면 생성 
@@ -17,7 +21,6 @@ public class FileValidator {
         PropertiesData.readProperties();
         
         String[] exportPathS = PropertiesData.proPath.split("/");
-        System.out.println(exportPathS[0]);
         File file = new File(exportPathS[0]);
         
         if(!file.exists()) {

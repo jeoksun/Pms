@@ -1,13 +1,13 @@
-package net.metabiz.pms.practice.uirenderer;
+package net.metabiz.pms.practice.uirenderer.checkbox;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.table.TableCellEditor;
+import net.metabiz.pms.practice.data.TableBeans;
+import net.metabiz.pms.practice.data.TableData;
 import javax.swing.JTable;
-import net.metabiz.pms.practice.crud.TableData;
-import net.metabiz.pms.practice.crud.TableBeans;
 
 public class CheckBoxEditor extends DefaultCellEditor {
     private JCheckBox checkBox;
@@ -15,26 +15,29 @@ public class CheckBoxEditor extends DefaultCellEditor {
     private TableData tableData;
 
     /**
-     * 생성될때 tableData를 받아 체크된 해당 로우의 상태 체크
+     * 생생되면 tableData를 받아 체크된 해당 로우의 상태 체크
      */
     public CheckBoxEditor(TableData tableData) {
-        super(new JCheckBox());
+        super(new JCheckBox());                 // 셀 편집 가능 하도록 DefaultCellEditor 전달
         this.tableData = tableData;
 
-        checkBox = (JCheckBox) getComponent();
-        checkBox.setHorizontalAlignment(SwingConstants.CENTER);
+        checkBox = (JCheckBox) getComponent();  // 편집할 컴포넌트를 체크박스로 강제형변환 느낌?
+        checkBox.setHorizontalAlignment(SwingConstants.CENTER); //스타일 = Center
 
         checkBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (row >= 0) {
-                    TableBeans rowBean = tableData.beanslist().get(row);
-                    rowBean.setCheckStatus(checkBox.isSelected());
-                    tableData.fireTableDataChanged();
-                }
-
+                changeItem();
             }
         });
+    }
+
+    private void changeItem() {
+        if (0 <= row) {
+            TableBeans rowBean = tableData.beansList().get(row);
+            rowBean.setCheckStatus(checkBox.isSelected());      //Check ? true:fasle
+            tableData.fireTableDataChanged();
+        }
     }
 
     @Override

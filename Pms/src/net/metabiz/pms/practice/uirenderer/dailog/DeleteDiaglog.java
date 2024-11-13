@@ -1,4 +1,4 @@
-package net.metabiz.pms.practice.crud;
+package net.metabiz.pms.practice.uirenderer.dailog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -10,12 +10,14 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import net.metabiz.pms.practice.data.TableBeans;
+import net.metabiz.pms.practice.data.TableData;
 
-public class DeleteData extends JDialog {
+public class DeleteDiaglog extends JDialog {
 //    private int rowIdx;
     private TableData tableData;
 
-    public DeleteData( TableData tableData) {
+    public DeleteDiaglog( TableData tableData) {
 //        this.rowIdx = rowIdx;
         this.tableData = tableData;
         delInit();
@@ -61,18 +63,19 @@ public class DeleteData extends JDialog {
         this.add(panel);
 
     }
-
+    /**
+     * 해당 Index 만 지우기
+     */
     private void delData() {
-        for (int i = tableData.beanslist().size() - 1; i >= 0; i--) {   //공유 List
-            TableBeans item = tableData.beanslist().get(i);
+        for (int i = tableData.beansList().size() - 1; i >= 0; i--) {   
+            TableBeans item = tableData.beansList().get(i);
             if (item.isCheckStatus()) {
-                tableData.beanslist().remove(i);
+                tableData.beansList().remove(i);
             }
         }
-
         
+        tableData.updateList();
         tableData.fireTableDataChanged();
-        tableData.fileUpdate(); 
         
         dispose();
     }

@@ -1,5 +1,5 @@
 // CheckBoxRenderer.java
-package net.metabiz.pms.practice.uirenderer;
+package net.metabiz.pms.practice.uirenderer.checkbox;
 
 import java.awt.Color;
 import java.awt.Component;

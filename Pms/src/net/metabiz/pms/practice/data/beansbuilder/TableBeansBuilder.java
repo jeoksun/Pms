@@ -1,4 +1,6 @@
-package net.metabiz.pms.practice.crud;
+package net.metabiz.pms.practice.data.beansbuilder;
+
+import net.metabiz.pms.practice.data.TableBeans;
 
 public class TableBeansBuilder {
     private TableBeans transcation;

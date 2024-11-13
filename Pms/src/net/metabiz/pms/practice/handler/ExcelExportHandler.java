@@ -1,4 +1,4 @@
-package net.metabiz.pms.practice.excel;
+package net.metabiz.pms.practice.handler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,13 +13,13 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import net.metabiz.pms.practice.crud.TableData;
-import net.metabiz.pms.practice.data.FileValidator;
 import net.metabiz.pms.practice.data.PropertiesData;
+import net.metabiz.pms.practice.data.TableData;
+import net.metabiz.pms.practice.valid.ExcelFileValidator;
 
-public class ExcelStart {
+public class ExcelExportHandler {
     
-    public ExcelStart(JTable table) throws Exception {
+    public ExcelExportHandler(JTable table) throws Exception {
         exportExcelFile(table);
     }
     
@@ -28,11 +28,11 @@ public class ExcelStart {
         /**
          * 디렉토리 or 파일 검증
          */
-        if (!FileValidator.validateAndCreateDir()) {
+        if (!ExcelFileValidator.validateAndCreateDir()) {
             JOptionPane.showMessageDialog(null, "디렉토리 생성 실패");
             return;
         }
-        if (!FileValidator.validateAndCreateFile()) {
+        if (!ExcelFileValidator.validateAndCreateFile()) {
             JOptionPane.showMessageDialog(null, "파일 생성 실패");
             return;
         }
@@ -42,11 +42,11 @@ public class ExcelStart {
          */
         HSSFWorkbook wb = new HSSFWorkbook();
         Sheet sheet = wb.createSheet("JTextField 입력값");
-        TableModel model = table.getModel();
+        TableModel model = table.getModel();//Table에서 Model 가져오기
         Row headerRow = sheet.createRow(0); // 첫 번째 행은 헤더
 
         int columnCount = model.getColumnCount();
-        int excludedColumnIndex = 0;  // 체크박스 열은 제외
+        int excludedColumnIndex = 0;        // 체크박스 열은 제외할 변수 
         int columnIndex = 0;
 
         /**
@@ -112,7 +112,7 @@ public class ExcelStart {
         } finally {
             wb.close();
             export.close();
-            JOptionPane.showMessageDialog(null, "export success!");
+            JOptionPane.showMessageDialog(null, "Export success!");
         }
     }
 }

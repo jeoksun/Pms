@@ -10,7 +10,7 @@ import java.util.Properties;
 public class PropertiesData {
 
     public static Properties prop = null;
-    public static String exportPath = "";              //file/excel.xlsx
+    public static String exportPath = "";              
     public static String proPath = "exportPath"; 
     
     
