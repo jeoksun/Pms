@@ -2,10 +2,12 @@ package net.metabiz.pms.practice.uirenderer;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.rmi.activation.ActivationMonitor;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
+import org.apache.poi.hpsf.Array;
 import net.metabiz.pms.practice.data.TableData;
 import net.metabiz.pms.practice.handler.ExcelExportHandler;
 import net.metabiz.pms.practice.uirenderer.checkbox.CheckBoxEditor;
@@ -271,7 +273,7 @@ public class UIrenderer extends JFrame {
             }
         };
     }
-
+    
     /**
      * 키입력 이벤트 발생의 주체
      */
@@ -310,7 +312,8 @@ public class UIrenderer extends JFrame {
     private String getCommentFilter() {
         return commentFilter.getText().trim();
     }
-
-
+        
+        
+    }
 
 }

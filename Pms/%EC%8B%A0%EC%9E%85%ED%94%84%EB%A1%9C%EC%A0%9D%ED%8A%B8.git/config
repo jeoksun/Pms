@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = true
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = http://otaam87@210.105.67.200:9000/otaam87/%EC%8B%A0%EC%9E%85%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8
+	fetch = +refs/*:refs/*
+	mirror = true
