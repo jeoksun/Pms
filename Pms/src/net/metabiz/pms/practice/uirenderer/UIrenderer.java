@@ -219,6 +219,9 @@ public class UIrenderer extends JFrame {
          */
         this.add(pnMain);
         this.setVisible(true);
+        /************
+         * 렌더링 끝*
+         ***********/
     }
 
     /**
@@ -275,8 +278,6 @@ public class UIrenderer extends JFrame {
     private void applyFilter() {
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableData);
         searchResultTable.setRowSorter(sorter);
-
-        // 순서 상관없이 텍스트 필드에 입력하는 값 을 List에 += 해준다는 느낌.
         List<RowFilter<TableModel, Object>> filters = new ArrayList<>();
         filters.add(RowFilter.regexFilter(getItemCodeFilter(), 1));
         filters.add(RowFilter.regexFilter(getItemNameFilter(), 2));
@@ -284,7 +285,8 @@ public class UIrenderer extends JFrame {
         filters.add(RowFilter.regexFilter(getCommentFilter(), 4));
 
         /**
-         * 텍스트필드에 입력한값이 있다면
+         * andFilter에 List를 파라미터로 보내 모든컬럼 인덱스와  
+         * 입력한값에 대해서 일치하는 데이터를 반환하고 보여줌
          */
         RowFilter<TableModel, Object> rowFilter = RowFilter.andFilter(filters);
         sorter.setRowFilter(rowFilter);
