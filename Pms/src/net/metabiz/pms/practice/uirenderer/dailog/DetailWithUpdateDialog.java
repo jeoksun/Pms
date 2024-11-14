@@ -104,7 +104,8 @@ public class DetailWithUpdateDialog extends JDialog  {
         SwingStyle.btnStyleChanger(modifyButton);
         modifyButton.addActionListener(e -> rowDataUpdate());
         btnPanel.add(modifyButton);
-
+ 
+        
         // ´Ý±â ¹öÆ°
         JButton closeButton = new JButton("´Ý±â");
         SwingStyle.btnStyleChanger(closeButton);
