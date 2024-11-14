@@ -24,9 +24,8 @@ public class ExcelExportHandler {
     }
     
     public static void exportExcelFile(JTable table) throws Exception {
-
         /**
-         * 디렉토리 or 파일 검증
+         * 디렉토리, 파일 존재 여부 검증
          */
         if (!ExcelFileValidator.validateAndCreateDir()) {
             JOptionPane.showMessageDialog(null, "디렉토리 생성 실패");
@@ -37,74 +36,78 @@ public class ExcelExportHandler {
             return;
         }
 
-        /**
-         * 테이블에 있는 데이터 일단 가져오기
-         */
         HSSFWorkbook wb = new HSSFWorkbook();
         Sheet sheet = wb.createSheet("JTextField 입력값");
-        TableModel model = table.getModel();//Table에서 Model 가져오기
-        Row headerRow = sheet.createRow(0); // 첫 번째 행은 헤더
+        TableModel model = table.getModel();
+        Row headerRow = sheet.createRow(0);                 // 첫 번째 행은 헤더
 
         int columnCount = model.getColumnCount();
-        int excludedColumnIndex = 0;        // 체크박스 열은 제외할 변수 
+        int excludedColumnIndex = 0; 
         int columnIndex = 0;
 
-        /**
-         * 체크박스열 엑셀 export시 제외
-         */
+        // 체크박스 열을 제외한 헤더를 엑셀에 입력
         for (int i = 0; i < columnCount; i++) {
-            if (i == excludedColumnIndex) {  // 체크박스 컬럼은 제외
+            if (i == excludedColumnIndex) { // 체크박스 컬럼은 제외
                 continue;
             }
-            Cell cel = headerRow.createCell(columnIndex++);
-            cel.setCellValue(model.getColumnName(i));
+            Cell cell = headerRow.createCell(columnIndex++);
+            cell.setCellValue(model.getColumnName(i));
         }
 
-        /**
-         * 테이블 데이터(header 제외한 row) 가져오기 (체크박스 컬럼 제외)
-         * 필터링된 데이터만 가져오기
-         */
-        TableRowSorter<TableModel> sorter = (TableRowSorter<TableModel>) table.getRowSorter();
+        // 필터링된 데이터만 추출하기 위해 TableRowSorter 사용
+        TableRowSorter<TableModel> sorter =  (TableRowSorter<TableModel>) table.getRowSorter();
 
-        // sorter가 null인 경우를 처리
+        // 필터가 적용된 경우, 필터링된 데이터만 내보내기
         boolean isFiltered = (sorter != null && sorter.getRowFilter() != null);
-        
         FileOutputStream export = null;
 
-//        try (FileOutputStream export = new FileOutputStream(new File(PropertiesData.exportPath))) {
         try {
             export = new FileOutputStream(new File(PropertiesData.exportPath));
-            int rowNum = 1; // 데이터는 첫 번째 행부터 시작
+            int rowNum = 1; // 데이터는 두 번째 행부터 시작
 
+            // 필터링된 데이터만 내보내기 (필터된 행의 원본 인덱스만 추출)
             for (int i = 0; i < model.getRowCount(); i++) {
-                int viewRow;
+                // 필터가 적용된 경우, 필터링된 행만 내보내기
                 if (isFiltered) {
-                    // 조회 필터가 적용된경우에만 적용
-                    viewRow = sorter.convertRowIndexToView(i);
+                    int viewRow = sorter.convertRowIndexToView(i); // 원본 모델의 index 그러니까 조회가된 로우의 인덱스들
                     if (viewRow == -1) {
-                        continue; // 필터링되어 표시되지 않는 행은 무시
+                        continue; // 필터링된 행은 엑셀로 내보내지 않음
+                    }
+
+                    // 모델 인덱스로 변경
+                    int modelRow = sorter.convertRowIndexToModel(viewRow); // 필터링된 행의 모델 인덱스
+                    Row row = sheet.createRow(rowNum++);
+                    columnIndex = 0;
+                    for (int j = 0; j < columnCount; j++) {
+                        if (j == excludedColumnIndex) { // 체크박스 컬럼은 제외
+                            continue;
+                        }
+                        Cell cell = row.createCell(columnIndex++);
+                        if (model.getValueAt(modelRow, j) != null) {
+                            cell.setCellValue(model.getValueAt(modelRow, j).toString()); 
+                        } else {
+                            cell.setCellValue(""); 
+                        }
                     }
                 } else {
-                    // 필터가 적용되지않은 경우!
-                    viewRow = i;
-                }
-
-                Row row = sheet.createRow(rowNum++); // 첫 번째 행은 헤더니까 +1부터 데이터 시작
-                columnIndex = 0;
-                for (int j = 0; j < columnCount; j++) {
-                    if (j == excludedColumnIndex) { // 체크박스 컬럼은 제외
-                        continue;
-                    }
-                    Cell cell = row.createCell(columnIndex++);
-                    if (model.getValueAt(viewRow, j) != null) {
-                        cell.setCellValue(model.getValueAt(viewRow, j).toString()); // 테이블에서 값 가져오기
-                    } else {
-                        cell.setCellValue(""); // 값이 없으면 빈 문자열
+                    // 필터가 없으면 모든 행을 가져오기
+                    Row row = sheet.createRow(rowNum++);
+                    columnIndex = 0;
+                    for (int j = 0; j < columnCount; j++) {
+                        if (j == excludedColumnIndex) { // 체크박스 컬럼은 제외
+                            continue;
+                        }
+                        Cell cell = row.createCell(columnIndex++);
+                        if (model.getValueAt(i, j) != null) {
+                            cell.setCellValue(model.getValueAt(i, j).toString()); 
+                        } else {
+                            cell.setCellValue(""); 
+                        }
                     }
                 }
             }
 
-            // 엑셀 파일 쓰기
+            // 엑셀 파일에 데이터를 기록
             wb.write(export);
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,4 +118,7 @@ public class ExcelExportHandler {
             JOptionPane.showMessageDialog(null, "Export success!");
         }
     }
+
+
+
 }
