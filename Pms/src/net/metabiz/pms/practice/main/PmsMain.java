@@ -5,7 +5,7 @@ import net.metabiz.pms.practice.uirenderer.UIrenderer;
 public class PmsMain {
 
     public static void main(String[] args) {
-        new UIrenderer();
+        UIrenderer.getInstance();
     }
     
 }

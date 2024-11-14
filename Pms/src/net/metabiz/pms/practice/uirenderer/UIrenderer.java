@@ -17,55 +17,32 @@ import net.metabiz.pms.practice.uirenderer.style.SwingStyle;
 
 public class UIrenderer extends JFrame {
 
-    private JPanel pnMain; // 메인 패널
-
-    private JPanel pnMainNorth; // 메인 위쪽 (하나로 묶어놓기 전용)
-    private JPanel pnMainNorthNorth;// 메인 위쪽에 위쪽 타이틀 라벨 들어갈곳
-    private JPanel pnMainNorthCenter;// 메인 위쪽에 센터 조회 라벨,조회 텍스트 필드 들어갈곳
-
-    /**
-     * textfield.getText()를 전역으로 쓰기위해서
-     */
+    private static UIrenderer instance;
+    
     private JTextField itemCodeFilter; // 자재코드 텍스트필드
     private JTextField itemNameFilter; // 자재명 텍스트필드
     private JTextField gtinFilter; // GTIN 텍스트필드
     private JTextField commentFilter; // 비고 텍스트필드
-
-    // private JTextField searchTextField; 원래 조회 컬럼
-
-    /**
-     * Table 영역
-     */
-    private JPanel pnMainCenter; // 메인 가운데(하나로 묶어놓기 전용)
-    private JPanel pnMainCenterNorth; // 메인 위쪽 (라벨)
+    private JTable searchResultTable;
     private TableData tableData; // 테이블 데이터 가져오는 객체
     private int row; // Table row 추적용 전역 변수
-
-    /**
-     * Button 영역
-     */
-
-    private JPanel pnMainSouth;
-    private JPanel pnMainSouthSouth;
-    private JButton addBtn;
-    private JButton delBtn;
-    private JButton exportBtn;
-
-    private JTable searchResultTable;
-
     private AddDialog addDialog; // 자재 추가 시 호출 객체
     private DeleteDiaglog delData; // 자재 삭제 시 호출 객체
-
     private DetailWithUpdateDialog detailUI; // Row 클릭 시 상세 객체 (수정까지)
-
     private ExcelExportHandler export; // Export btn 클릭시 호출(엑셀파일 export) 객체
-
     private CheckBoxRenderer checkBoxRenderer; // CheckBox 랜더링
     private CheckBoxEditor checkBoxEditor; // CheckBox 편집
-
-    public UIrenderer() {
+    
+    public static UIrenderer getInstance() {
+        if(instance == null) {
+            instance = new UIrenderer();
+        }
+        return instance;
+    }
+    private UIrenderer() {
         init();
     }
+  
 
     public void init() {
         /*****************
@@ -77,15 +54,15 @@ public class UIrenderer extends JFrame {
         this.setTitle("PMS 자재 관리 시스템");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        pnMain = new JPanel(new BorderLayout(10, 10)); // 여백을 추가하여 컴포넌트 간 간격을 만들기
+        JPanel pnMain = new JPanel(new BorderLayout(10, 10)); // 여백을 추가하여 컴포넌트 간 간격을 만들기
 
         /**
          * 상단 필터 영역
          * 상단 Layout 지정
          */
-        pnMainNorth = new JPanel(new BorderLayout(10, 10));
-        pnMainNorthNorth = new JPanel(new BorderLayout());
-        pnMainNorthCenter = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JPanel pnMainNorth = new JPanel(new BorderLayout(10, 10));
+        JPanel pnMainNorthNorth = new JPanel(new BorderLayout());
+        JPanel pnMainNorthCenter = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
         /**
          * 상단 메인 타이틀 Label
@@ -128,9 +105,9 @@ public class UIrenderer extends JFrame {
         pnMainNorth.add(pnMainNorthCenter, BorderLayout.CENTER);
 
         // 중앙 - 테이블 영역
-        pnMainCenter = new JPanel(new BorderLayout(10, 10));
+        JPanel pnMainCenter = new JPanel(new BorderLayout(10, 10));
 
-        pnMainCenterNorth = new JPanel(new BorderLayout());
+        JPanel pnMainCenterNorth = new JPanel(new BorderLayout());
         JLabel searchResultLabel = new JLabel("결과 조회 테이블");
         searchResultLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         pnMainCenterNorth.add(searchResultLabel, BorderLayout.NORTH);
@@ -146,8 +123,8 @@ public class UIrenderer extends JFrame {
         // 테이블에 각 열 크기 및 체크박스 설정 유지
         searchResultTable.setRowHeight(30); // 각 행 높이 조정
         searchResultTable.setFont(new Font("SansSerif", Font.BOLD, 16));
+        
         searchResultTable.getColumnModel().getColumn(0).setPreferredWidth(40); // 체크박스 width 크기
-
         for (int i = 1; i < searchResultTable.getColumnCount(); i++) {// 다른컬럼 width 크기
             searchResultTable.getColumnModel().getColumn(i).setPreferredWidth(300);
         }
@@ -179,13 +156,13 @@ public class UIrenderer extends JFrame {
         /**
          * 하단 버튼 영역
          */
-        pnMainSouth = new JPanel(new BorderLayout(10, 10));
-        pnMainSouthSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel pnMainSouth = new JPanel(new BorderLayout(10, 10));
+        JPanel pnMainSouthSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
         /**
          * 추가 이벤트
          */
-        addBtn = new JButton("추 가");
+        JButton addBtn = new JButton("추 가");
         SwingStyle.btnStyleChanger(addBtn);
         addBtn.addActionListener(new ActionListener() {
             @Override
@@ -197,7 +174,7 @@ public class UIrenderer extends JFrame {
         /**
          * 삭제 이벤트
          */
-        delBtn = new JButton("삭 제");
+        JButton delBtn = new JButton("삭 제");
         SwingStyle.btnStyleChanger(delBtn);
         delBtn.addActionListener(new ActionListener() {
             @Override
@@ -209,7 +186,7 @@ public class UIrenderer extends JFrame {
         /**
          * 엑셀 export 이벤트
          */
-        exportBtn = new JButton("EXPORT");
+        JButton exportBtn = new JButton("EXPORT");
         SwingStyle.btnStyleChanger(exportBtn);
         exportBtn.addActionListener(new ActionListener() {
             @Override
@@ -332,14 +309,6 @@ public class UIrenderer extends JFrame {
         return commentFilter.getText().trim();
     }
 
-    /**
-     * 텍스트필드 스타일 설정
-     */
-    private void styleTextField(JTextField textField) {
-        textField.setBackground(new Color(240, 240, 240));
-        textField.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        textField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-    }
 
 
 }

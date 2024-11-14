@@ -13,6 +13,8 @@ import net.metabiz.pms.practice.data.PropertiesData;
  */
 public class ExcelFileValidator {
     
+    
+    
     /**
        디렉토리 존재 여부 확인 후 없으면 생성 
      * @throws Exception 
