@@ -67,11 +67,10 @@ public class ExcelExportHandler {
 
             // 필터링된 데이터만 내보내기 (필터된 행의 원본 인덱스만 추출)
             for (int i = 0; i < model.getRowCount(); i++) {
-                // 필터가 적용된 경우, 필터링된 행만 내보내기
                 if (isFiltered) {
                     int viewRow = sorter.convertRowIndexToView(i); // 원본 모델의 index 그러니까 조회가된 로우의 인덱스들
                     if (viewRow == -1) {
-                        continue; // 필터링된 행은 엑셀로 내보내지 않음
+                        continue; 
                     }
 
                     // 모델 인덱스로 변경

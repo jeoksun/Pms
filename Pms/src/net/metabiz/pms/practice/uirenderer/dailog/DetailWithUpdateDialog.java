@@ -47,12 +47,12 @@ public class DetailWithUpdateDialog extends JDialog  {
 
     private void detailUI() {
         this.setTitle("자재 상세");
-        this.setSize(new Dimension(500, 400));
+        this.setSize(new Dimension(400, 400));
         this.setLocationRelativeTo(null);
         this.setModal(true);
 
         pnUpdateMain = new JPanel(new GridBagLayout());
-        pnUpdateMain.setBorder(new EmptyBorder(10, 10, 10, 10));
+        pnUpdateMain.setBorder(new EmptyBorder(8, 8, 8, 8));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);

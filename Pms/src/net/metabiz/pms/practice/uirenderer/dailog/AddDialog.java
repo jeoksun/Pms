@@ -30,7 +30,6 @@ import net.metabiz.pms.practice.handler.CRUDFileHandler;
 import net.metabiz.pms.practice.valid.InputDataValidator;
 
 public class AddDialog extends JDialog implements ActionListener {
-    private JPanel pnAddMain;
     private JTextField itemCodeField;
     private JTextField itemNameField;
     private JTextField itemGTINField;
@@ -51,12 +50,12 @@ public class AddDialog extends JDialog implements ActionListener {
      */
     private void init() {
         this.setTitle("자재 추가 항목");
-        this.setSize(new Dimension(500, 400)); // 크기조정
+        this.setSize(new Dimension(400,400)); // 크기조정
         this.setLocationRelativeTo(null);
         this.setModal(true);
 
-        pnAddMain = new JPanel(new GridBagLayout());
-        pnAddMain.setBorder(new EmptyBorder(10, 10, 10, 10)); // 전체여백조정
+        JPanel pnAddMain = new JPanel(new GridBagLayout());
+        pnAddMain.setBorder(new EmptyBorder(8, 8, 8, 8)); // 전체여백조정
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5); // 컴포넌트사이의 간격 설정
